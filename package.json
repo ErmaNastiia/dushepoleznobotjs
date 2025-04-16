@@ -1,18 +1,27 @@
 {
-  "name": "google",
+  "name": "chatbotjs",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
+    "@grammyjs/storage-free": "^2.5.0",
+    "debug": "^4.4.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "grammy": "^1.35.1",
-    "nodemon": "^3.1.9"
+    "googleapis": "^146.0.0",
+    "grammy": "^1.35.0",
+    "js-yaml": "^4.1.0",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.9",
+    "punycode": "^2.3.1",
+    "yaml": "^2.7.0"
   }
 }
