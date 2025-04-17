@@ -27,6 +27,7 @@ bot.use(
       startTime: '',
       timeSlot: '',
       customTime: '',
+      needsAfisha: '', // Added new field for afisha
     }),
   })
 );
@@ -48,6 +49,7 @@ async function sendTelegramNotification(sessionData) {
     startTime,
     timeSlot,
     customTime,
+    needsAfisha,  // Added the needsAfisha field
   } = sessionData;
 
   let timeInfo;
@@ -69,6 +71,7 @@ async function sendTelegramNotification(sessionData) {
   }
 
   const cabinetName = cabinet === 'cabinet13' ? 'Кабинет 13м²🔴' : 'Зал 17м²🔵';
+  const afishaInfo = needsAfisha === 'yes' ? 'Да' : 'Нет';
 
   const message = `
 🔔 *Новое бронирование ожидает подтверждения и оплаты*
@@ -79,6 +82,7 @@ async function sendTelegramNotification(sessionData) {
 🏢 *Помещение:* ${cabinetName}
 📅 *Дата:* ${date}
 ⏰ *Время:* ${timeInfo}
+📢 *Нужна афиша:* ${afishaInfo}
   `;
 
   try {
@@ -125,6 +129,7 @@ bot.command('book', async ctx => {
     startTime: '',
     timeSlot: '',
     customTime: '',
+    needsAfisha: '',
   };
 
   await ctx.reply(
@@ -231,20 +236,15 @@ bot.on('message', async ctx => {
 
       ctx.session.customTime = text;
       ctx.session.timeSlot = 'custom';
+      ctx.session.step = 'askNeedsAfisha';  // Changed to ask about afisha
 
-      try {
-        await sendTelegramNotification(ctx.session);
-        await ctx.reply(
-          'Спасибо, мы свяжемся с вами в течение суток. Если вы не получили от нас ответа, пишите на @dushepolezno_work. Пока ждёте от нас ответа, ознакомьтесь, пожалуйста, с условиями <a href="https://yadi.sk/i/vYDfeS16TEy9aQ">бронирования</a>',
-          { parse_mode: 'HTML' }
-        );
-        ctx.session.step = 'idle'; // Reset the conversation
-      } catch (error) {
-        console.error('Error processing booking:', error);
-        await ctx.reply(
-          'Произошла ошибка при бронировании. Пожалуйста, попробуйте еще раз или свяжитесь с менеджером @dushepolezno_work.'
-        );
-      }
+      const afishaKeyboard = new InlineKeyboard()
+        .text('Да', 'afisha_yes')
+        .text('Нет', 'afisha_no');
+
+      await ctx.reply('Нужна ли афиша для вашего мероприятия?', {
+        reply_markup: afishaKeyboard,
+      });
       break;
 
     default:
@@ -303,20 +303,39 @@ bot.on('callback_query', async ctx => {
         );
       } else {
         ctx.session.timeSlot = callbackData;
+        ctx.session.step = 'askNeedsAfisha';  // Changed to ask about afisha
 
-        try {
-          await sendTelegramNotification(ctx.session);
-          await ctx.reply(
-            'Спасибо, мы свяжемся с вами в течение суток. Если вы не получили от нас ответа, пишите на @dushepolezno_work. Пока ждёте от нас ответа, ознакомьтесь, пожалуйста, с условиями <a href="https://yadi.sk/i/vYDfeS16TEy9aQ">бронирования</a>',
-            { parse_mode: 'HTML' }
-          );
-          ctx.session.step = 'idle'; // Reset the conversation
-        } catch (error) {
-          console.error('Error processing booking:', error);
-          await ctx.reply(
-            'Произошла ошибка при бронировании. Пожалуйста, попробуйте еще раз или свяжитесь с менеджером @dushepolezno_work.'
-          );
-        }
+        const afishaKeyboard = new InlineKeyboard()
+          .text('Да', 'afisha_yes')
+          .text('Нет', 'afisha_no');
+
+        await ctx.reply('Хотите ли вы, чтобы мы добавили анонс вашего мероприятия на сайте и канале Пространства? Если да, то после подтверждения бронирования присылайте текст анонса с указанием контакта для регистрации и две-три фотографии на @dushepolezno_work.', {
+          reply_markup: afishaKeyboard,
+        });
+      }
+      break;
+
+    case 'askNeedsAfisha':  // New case for handling afisha response
+      await ctx.answerCallbackQuery();
+      
+      if (callbackData === 'afisha_yes') {
+        ctx.session.needsAfisha = 'yes';
+      } else if (callbackData === 'afisha_no') {
+        ctx.session.needsAfisha = 'no';
+      }
+
+      try {
+        await sendTelegramNotification(ctx.session);
+        await ctx.reply(
+          'Спасибо, мы свяжемся с вами в течение суток. Если вы не получили от нас ответа, пишите на @dushepolezno_work. Пока ждёте от нас ответа, ознакомьтесь, пожалуйста, с условиями <a href="https://yadi.sk/i/vYDfeS16TEy9aQ">бронирования</a>',
+          { parse_mode: 'HTML' }
+        );
+        ctx.session.step = 'idle'; // Reset the conversation
+      } catch (error) {
+        console.error('Error processing booking:', error);
+        await ctx.reply(
+          'Произошла ошибка при бронировании. Пожалуйста, попробуйте еще раз или свяжитесь с менеджером @dushepolezno_work.'
+        );
       }
       break;
   }
