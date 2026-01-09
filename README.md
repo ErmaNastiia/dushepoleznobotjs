@@ -21,6 +21,12 @@ Designed for:
 
 ---
 
+## Usage
+
+The bot is designed to automate repetitive tasks and respond to predefined commands, acting as a lightweight assistant that can be adapted to different platforms or services.
+
+---
+
 ## Tech Stack
 
 - JavaScript (ES)
@@ -33,9 +39,46 @@ Designed for:
 
 ```plaintext
 dushepoleznobotjs/
-├── node_modules/
 ├── index.js
 ├── package.json
 ├── package-lock.json
 ├── .gitignore
 └── .prettierrc
+
+```
+## Installation
+Clone the repository:
+```plaintext
+git clone https://github.com/ErmaNastiia/dushepoleznobotjs.git
+cd dushepoleznobotjs
+
+```
+---
+
+Install dependencies:
+```plaintext
+npm install
+```
+## Running the Project
+Run the bot locally:
+```plaintext
+node index.js
+
+```
+Or, if a start script is defined:
+```plaintext
+npm start
+
+```
+
+---
+
+## Development Notes
+Uses npm for dependency management
+
+- No build step required
+- Easy to extend with additional modules or APIs
+- Formatting rules defined via Prettier
+---
+
+
