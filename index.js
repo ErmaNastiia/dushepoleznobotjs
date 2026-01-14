@@ -386,7 +386,8 @@ bot.on('callback_query', async ctx => {
       }
       break;
   }
-});
+      
+})  ;
 
 // Error handling
 bot.catch(err => {
