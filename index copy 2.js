@@ -266,12 +266,14 @@ bot.on('callback_query', async ctx => {
         ctx.session.step = 'askDate';
         await ctx.answerCallbackQuery();
 
+        // Validate date format (DD/MM/YYYY)
+        const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
         const today = new Date();
-        const todayFormatted = today.toLocaleDateString('ru-RU', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
+        today.setHours(0, 0, 0, 0);
+        const todayDay = String(today.getDate()).padStart(2, '0');
+        const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+        const todayYear = today.getFullYear();
+        const todayFormatted = `${todayDay}/${todayMonth}/${todayYear}`;
 
         await ctx.reply(
           `Пожалуйста, введите дату бронирования в формате ДД/ММ/ГГГГ (например, ${todayFormatted}).`
@@ -354,8 +356,6 @@ bot.on('callback_query', async ctx => {
       await ctx.reply(preview, {
         reply_markup: new InlineKeyboard()
           .text('✅ Подтвердить', 'confirm_yes')
-          .text('✏️ Редактировать', 'confirm_edit')
-          .row()
           .text('❌ Отменить', 'confirm_no'),
       });
       break;
@@ -379,107 +379,9 @@ bot.on('callback_query', async ctx => {
         }
       }
 
-      if (callbackData === 'confirm_edit') {
-        ctx.session.step = 'chooseEditField';
-
-        const editKeyboard = new InlineKeyboard()
-          .text('👤 Имя', 'edit_name')
-          .text('📞 Контакт', 'edit_contact')
-          .row()
-          .text('📝 Название', 'edit_appointment')
-          .text('🏢 Помещение', 'edit_cabinet')
-          .row()
-          .text('📅 Дата', 'edit_date')
-          .text('⏰ Время', 'edit_time')
-          .row()
-          .text('📢 Афиша', 'edit_afisha')
-          .row()
-          .text('« Назад', 'edit_back');
-
-        await ctx.reply('Что вы хотите изменить?', {
-          reply_markup: editKeyboard,
-        });
-      }
-
       if (callbackData === 'confirm_no') {
         ctx.session.step = 'idle';
         await ctx.reply('Бронирование отменено. Введите /start для начала.');
-      }
-      break;
-
-    case 'chooseEditField':
-      await ctx.answerCallbackQuery();
-
-      if (callbackData === 'edit_name') {
-        ctx.session.step = 'askName';
-        await ctx.reply('Введите ваше имя:');
-      } else if (callbackData === 'edit_contact') {
-        ctx.session.step = 'askContact';
-        await ctx.reply('Введите ваш контакт:');
-      } else if (callbackData === 'edit_appointment') {
-        ctx.session.step = 'askAppointment';
-        await ctx.reply('Введите название мероприятия:');
-      } else if (callbackData === 'edit_cabinet') {
-        ctx.session.step = 'chooseCabinet';
-        const cabinetKeyboard = new InlineKeyboard()
-          .text('Кабинет (13м²)🔴', 'cabinet13')
-          .text('Зал (17м²)🔵', 'hall17');
-        await ctx.reply('Выберите помещение:', {
-          reply_markup: cabinetKeyboard,
-        });
-      } else if (callbackData === 'edit_date') {
-        ctx.session.step = 'askDate';
-        const today = new Date();
-        const todayDay = String(today.getDate()).padStart(2, '0');
-        const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-        const todayYear = today.getFullYear();
-        const todayFormatted = `${todayDay}/${todayMonth}/${todayYear}`;
-        await ctx.reply(
-          `Введите дату в формате ДД/ММ/ГГГГ (например, ${todayFormatted}):`
-        );
-      } else if (callbackData === 'edit_time') {
-        ctx.session.step = 'chooseStartTime';
-        const timeKeyboard = generateTimeKeyboard();
-        await ctx.reply('Выберите время начала:', {
-          reply_markup: timeKeyboard,
-        });
-      } else if (callbackData === 'edit_afisha') {
-        ctx.session.step = 'askNeedsAfisha';
-        const afishaKeyboard = new InlineKeyboard()
-          .text('Да', 'afisha_yes')
-          .text('Нет', 'afisha_no');
-        await ctx.reply('Нужна ли афиша?', {
-          reply_markup: afishaKeyboard,
-        });
-      } else if (callbackData === 'edit_back') {
-        const timeInfoBack = ctx.session.customTime
-          ? ctx.session.customTime
-          : `с ${ctx.session.startTime} до ${ctx.session.endTime}`;
-
-        const cabinetNameBack =
-          ctx.session.cabinet === 'cabinet13' ? 'Кабинет 13м²🔴' : 'Зал 17м²🔵';
-
-        const previewBack = `
-Проверьте данные:
-
-👤 Имя: ${ctx.session.clientName}
-📞 Контакт: ${ctx.session.contactInfo}
-📝 Название: ${ctx.session.appointmentName}
-🏢 Помещение: ${cabinetNameBack}
-📅 Дата: ${ctx.session.date}
-⏰ Время: ${timeInfoBack}
-📢 Афиша: ${ctx.session.needsAfisha === 'yes' ? 'Да' : 'Нет'}
-        `;
-
-        ctx.session.step = 'confirmBooking';
-
-        await ctx.reply(previewBack, {
-          reply_markup: new InlineKeyboard()
-            .text('✅ Подтвердить', 'confirm_yes')
-            .text('✏️ Редактировать', 'confirm_edit')
-            .row()
-            .text('❌ Отменить', 'confirm_no'),
-        });
       }
       break;
   }

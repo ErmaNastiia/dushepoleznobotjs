@@ -105,16 +105,16 @@ function generateTimeKeyboard() {
 // Start command - Main Menu
 bot.command('start', async ctx => {
   const mainMenu = new InlineKeyboard()
-    .text('✅ Забронировать', 'menu_book')
+    .text('📅 Забронировать', 'menu_book')
     .row()
     .text('ℹ️ О пространстве', 'menu_info')
     .row()
-    .url('📅 Расписание', 'https://dushepolezno.ru/prostranstvo-zapis');
+    .url('🌐 Расписание', 'https://dushepolezno.ru/prostranstvo-zapis');
 
   ctx.session.step = 'idle';
 
   await ctx.reply(
-    'Привет! 🤖 Я бот для аренды Пространства. Мы открыты с 9 до 22 и работаем без выходных. Подробнее <a href="https://dushepolezno.ru/prostranstvo">тут</a>. Перед началом бронирования обязательно посмотрите свободные слоты в <a href="https://dushepolezno.ru/prostranstvo-zapis">расписании</a>. Если все понятно введите /book и мы начнем процесс бронирования. Подробнее о кабинетах введите /info',
+    'Привет! Я бот для аренды Пространства. Мы открыты с 9 до 22 и работаем без выходных. Подробнее <a href="https://dushepolezno.ru/prostranstvo">тут</a>. Перед началом бронирования обязательно посмотрите свободные слоты в <a href="https://dushepolezno.ru/prostranstvo-zapis">расписании</a>. Если все понятно введите /book и мы начнем процесс бронирования. Подробнее о кабинетах введите /info',
     { parse_mode: 'HTML', reply_markup: mainMenu }
   );
 });
@@ -198,6 +198,7 @@ bot.on('message', async ctx => {
         break;
       }
 
+      // Date is valid and not in the past, proceed
       ctx.session.date = text;
       ctx.session.step = 'chooseStartTime';
 
@@ -355,7 +356,6 @@ bot.on('callback_query', async ctx => {
       await ctx.reply(preview, {
         reply_markup: new InlineKeyboard()
           .text('✅ Подтвердить', 'confirm_yes')
-          .text('❕ Редактировать', 'confirm_edit')
           .text('❌ Отменить', 'confirm_no'),
       });
       break;
@@ -378,8 +378,7 @@ bot.on('callback_query', async ctx => {
           );
         }
       }
-      if (callbackData === 'confirm_edit') {
-    
+
       if (callbackData === 'confirm_no') {
         ctx.session.step = 'idle';
         await ctx.reply('Бронирование отменено. Введите /start для начала.');
