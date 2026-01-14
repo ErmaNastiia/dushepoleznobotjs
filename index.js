@@ -61,11 +61,17 @@ async function sendTelegramNotification(sessionData) {
 🔔 *Новое бронирование ожидает подтверждения и оплаты*
 
 👤 *Имя клиента:* ${clientName}
+
 📞 *Контакт:* ${contactInfo}
+
 📝 *Название:* ${appointmentName}
+
 🏢 *Помещение:* ${cabinetName}
+
 📅 *Дата:* ${date}
+
 ⏰ *Время:* ${timeInfo}
+
 📢 *Нужна афиша:* ${afishaInfo}
   `;
 
@@ -105,11 +111,11 @@ function generateTimeKeyboard() {
 // Start command - Main Menu
 bot.command('start', async ctx => {
   const mainMenu = new InlineKeyboard()
-    .text('📅 Забронировать', 'menu_book')
+    .text('✅ Забронировать', 'menu_book')
     .row()
     .text('ℹ️ О пространстве', 'menu_info')
     .row()
-    .url('🌐 Расписание', 'https://dushepolezno.ru/prostranstvo-zapis');
+    .url('📅 Расписание', 'https://dushepolezno.ru/prostranstvo-zapis');
 
   ctx.session.step = 'idle';
 
@@ -342,11 +348,17 @@ bot.on('callback_query', async ctx => {
 Проверьте данные:
 
 👤 Имя: ${ctx.session.clientName}
+
 📞 Контакт: ${ctx.session.contactInfo}
+
 📝 Название: ${ctx.session.appointmentName}
+
 🏢 Помещение: ${cabinetName}
+
 📅 Дата: ${ctx.session.date}
+
 ⏰ Время: ${timeInfo}
+
 📢 Афиша: ${ctx.session.needsAfisha === 'yes' ? 'Да' : 'Нет'}
       `;
 
