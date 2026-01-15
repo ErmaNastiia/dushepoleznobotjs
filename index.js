@@ -380,12 +380,9 @@ bot.on('callback_query', async ctx => {
           await sendTelegramNotification(ctx.session);
           await ctx.reply(
             `<b>✅ Спасибо за бронирование!</b>
-
-            Мы свяжемся с вами в течение суток.
-
-            Если вы не получили от нас ответа, пишите на @dushepolezno_work.
-
-            Пока ждёте от нас ответа, ознакомьтесь, пожалуйста, с <a href="https://disk.yandex.ru/i/vYDfeS16TEy9aQ">правилами бронирования</a>.`,
+Мы свяжемся с вами в течение суток.
+Если вы не получили от нас ответа, пишите на @dushepolezno_work.
+Пока ждёте от нас ответа, ознакомьтесь, пожалуйста, с <a href="https://disk.yandex.ru/i/vYDfeS16TEy9aQ">правилами бронирования</a>.`,
             { parse_mode: 'HTML' }
           );
           ctx.session.step = 'idle';
